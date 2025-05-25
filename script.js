@@ -1,27 +1,22 @@
-let index = 0;
-let sentences = [];
+let shownIds = new Set(); // 이미 화면에 추가된 문장 ID 저장
 
-async function fetchSentences() {
+async function pollModifiedSentences() {
   try {
-    const res = await fetch('http://localhost:4000/sentences'); // API 주소는 바꿔야 할 수 있음
-    sentences = await res.json();
-    showNext();
+    const res = await fetch('http://10.16.21.19:4000/sentences/modified');
+    const sentences = await res.json();
+
+    sentences.forEach(sentence => {
+      if (!shownIds.has(sentence._id)) {
+        const p = document.createElement('p');
+        p.textContent = sentence.text;
+        document.getElementById('output').appendChild(p);
+        shownIds.add(sentence._id);
+      }
+    });
   } catch (err) {
-    document.getElementById('output').textContent = '불러오기 실패';
-    console.error(err);
+    console.error('수정된 문장 불러오기 실패:', err);
   }
 }
 
-function showNext() {
-  if (index >= sentences.length) {
-    index = 0; // 다시 처음부터 반복하거나 종료할 수 있음
-  }
-
-  const sentence = sentences[index];
-  document.getElementById('output').textContent = sentence.text || sentence;
-
-  index++;
-  setTimeout(showNext, 3000); // 3초마다 다음 문장
-}
-
-fetchSentences();
+// 3초마다 반복 요청
+setInterval(pollModifiedSentences, 3000);
