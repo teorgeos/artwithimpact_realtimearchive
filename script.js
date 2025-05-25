@@ -1,6 +1,7 @@
-let shownIds = new Set(); // 이미 화면에 추가된 문장 ID 저장
 
-async function pollModifiedSentences() {
+let shownIds = new Set();
+
+async function fetchModified() {
   try {
     const res = await fetch('http://10.16.21.19:4000/sentences/modified');
     const sentences = await res.json();
@@ -14,9 +15,9 @@ async function pollModifiedSentences() {
       }
     });
   } catch (err) {
-    console.error('수정된 문장 불러오기 실패:', err);
+    console.error('문장 불러오기 실패:', err);
   }
 }
 
-// 3초마다 반복 요청
-setInterval(pollModifiedSentences, 3000);
+// 3초마다 계속 요청
+setInterval(fetchModified, 3000);
